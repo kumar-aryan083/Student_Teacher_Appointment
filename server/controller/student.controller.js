@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import studentSchema from "../models/student.model.js"
 
 // controller for register route
 export const register = async(req, res)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const existingStudent = await studentSchema.findOne({username: req.body.username});
     try{
         if(existingStudent){
@@ -34,6 +35,30 @@ export const register = async(req, res)=>{
 }
 
 // controller for login route
-export const login = (req, res)=>{
-    res.send("login completed...")
+export const login = async (req, res)=>{
+    const {password, username} = req.body;
+    const student = await studentSchema.findOne({username});
+    if(!student){
+        res.status(404).json({
+            success: false,
+            message: "user doesn't exists",
+        })
+    }else{
+        if(!bcrypt.compareSync(password, student.password)){
+            res.status(403).json({
+                success: false,
+                message: "Incorrect password"
+            })
+        }else{
+            console.log("hit")
+            const {password, ...others} = student._doc; 
+            const token = jwt.sign({id: req.body._id}, process.env.JWT_SECRET);
+            res.cookie("token", token, {httpOnly: true}).status(200).json({
+                success: true,
+                message: "logged in successfully",
+                ...others,
+                "token": token
+            })
+        }
+    }
 }

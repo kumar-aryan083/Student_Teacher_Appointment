@@ -2,11 +2,13 @@ import express from 'express'
 import mongoose from 'mongoose';
 import chalk from 'chalk';
 import studentRouter from './routers/student.router.js'
+import cookieParser from 'cookie-parser';
 import env from 'dotenv'
 env.config();
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/api/student', studentRouter);
 
