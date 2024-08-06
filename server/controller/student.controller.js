@@ -1,15 +1,10 @@
-import express from 'express'
 import bcrypt from 'bcryptjs'
 import studentSchema from "../models/student.model.js"
 
-const app = express();
-app.use(express.json());
-
 // controller for register route
 export const register = async(req, res)=>{
-    const studentData = await req.body;
-    // console.log(studentData);
-    const existingStudent = await studentSchema.findOne({username: studentData.username});
+    console.log(req.body)
+    const existingStudent = await studentSchema.findOne({username: req.body.username});
     try{
         if(existingStudent){
             // hiding password from frontend
@@ -22,9 +17,9 @@ export const register = async(req, res)=>{
         }else{
             // hashing the password using bcryptjs
             let salt = bcrypt.genSaltSync(10);
-            let hash = bcrypt.hashSync(studentData.password, salt);
+            let hash = bcrypt.hashSync(req.body.password, salt);
             // creating a new student data in db
-            const newStudent = new studentSchema({...studentData, password: hash});
+            const newStudent = new studentSchema({...req.body, password: hash});
             await newStudent.save();
             const {__v, password, ...others} = newStudent._doc;
             res.status(200).json({
@@ -36,8 +31,9 @@ export const register = async(req, res)=>{
     }catch(err){
         console.log(err);
     }
-    
 }
+
+// controller for login route
 export const login = (req, res)=>{
     res.send("login completed...")
 }

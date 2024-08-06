@@ -20,6 +20,6 @@ const studentSchema = new mongoose.Schema({
         unique: true
     },
     phone: String
-},{timestamp: true});
+},{timestamps: true});
 
 export default mongoose.model('Student', studentSchema);
